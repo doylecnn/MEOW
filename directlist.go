@@ -1,11 +1,11 @@
 package main
 
 import (
-	"net"
 	"os"
 	"strings"
 	"sync"
 
+	"github.com/bogdanovich/dns_resolver"
 	"github.com/cyfdecyf/bufio"
 )
 
@@ -22,6 +22,8 @@ const (
 	domainTypeProxy
 	domainTypeReject
 )
+
+var resolver *dns_resolver.DnsResolver
 
 func newDomainList() *DomainList {
 	return &DomainList{
@@ -54,6 +56,11 @@ func (domainList *DomainList) judge(url *URL) (domainType DomainType) {
 		return domainTypeProxy
 	}
 	debug.Printf("judging by ip")
+
+	if resolver == nil {
+		resolver = dns_resolver.New([]string{config.dns})
+	}
+
 	var ip string
 	isIP, isPrivate := hostIsIP(url.Host)
 	if isIP {
@@ -63,13 +70,15 @@ func (domainList *DomainList) judge(url *URL) (domainType DomainType) {
 		}
 		ip = url.Host
 	} else {
-		hostIPs, err := net.LookupIP(url.Host)
+		hostIPs, err := resolver.LookupHost(url.Host)
 		if err != nil {
 			errl.Printf("error looking up host ip %s, err %s", url.Host, err)
 			return domainTypeProxy
 		}
 		ip = hostIPs[0].String()
 	}
+
+	debug.Printf("ip: %s", ip)
 
 	if ipShouldDirect(ip) {
 		domainList.add(url.Host, domainTypeDirect)

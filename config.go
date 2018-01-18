@@ -56,6 +56,8 @@ type Config struct {
 	RejectFile string
 	CNIPFile   string
 
+	dns string
+
 	// not configurable in config file
 	PrintVer bool
 
@@ -82,6 +84,8 @@ func initConfig(rcFile string) {
 	config.JudgeByIP = true
 
 	config.AuthTimeout = 2 * time.Hour
+
+	config.dns = "114.114.114.114"
 }
 
 // Whether command line options specifies listen addr
@@ -325,6 +329,10 @@ func (p configParser) ParseProxy(val string) {
 	}
 	args := []reflect.Value{reflect.ValueOf(arr[1])}
 	method.Call(args)
+}
+
+func (p configParser) ParseDns(val string) {
+	config.dns = val
 }
 
 func (p configParser) ParseListen(val string) {

@@ -40,6 +40,8 @@ func main() {
 		runtime.GOMAXPROCS(config.Core)
 	}
 
+	debug.Printf("dns server: %s", config.dns)
+
 	go runSSH()
 
 	var wg sync.WaitGroup
