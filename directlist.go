@@ -71,7 +71,7 @@ func (domainList *DomainList) judge(url *URL) (domainType DomainType) {
 		ip = url.Host
 	} else {
 		hostIPs, err := resolver.LookupHost(url.Host)
-		if err != nil {
+		if err != nil || len(hostIPs) == 0 {
 			errl.Printf("error looking up host ip %s, err %s", url.Host, err)
 			return domainTypeProxy
 		}
